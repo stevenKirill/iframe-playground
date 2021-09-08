@@ -16,9 +16,19 @@ code {
   border-radius: 4px;
   margin-right: 10px;
   padding: 5px;
-  min-height: 44px;
+  height: 36px;
 }
 .my-iframe {
   margin-top: 10px;
   margin-bottom: 10px;
+}
+.my-label {
+  margin-top: 20;
+  text-align: center;
+}
+.margin-left-10 {
+  margin-left: 10px;
+}
+.margin-right-10 {
+  margin-right: 10px;
 }

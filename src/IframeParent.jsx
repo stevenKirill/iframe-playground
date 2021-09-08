@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { origin } from './constants';
-import Button from '@material-ui/core/Button';
+import MyButton from './MyButton';
 import InputBase from '@material-ui/core/InputBase';
 
 const containerStyles = {
@@ -11,11 +11,22 @@ const containerStyles = {
 
 function IframeParent() {
     const [inputValue,setInputValue] = useState('');
+    const [backMessage, setBackMessage] = useState('')
     const childRef = useRef(null);
     const inputRef = useRef(null);
 
     useEffect(() => {
-
+        window.addEventListener("message", function (e) {
+            console.log(e.origin)
+            if (e.origin !== "http://localhost:3000") return;
+            let recievedMessage = null;
+            if (typeof e.data  === 'object') {
+                recievedMessage = JSON.stringify(e.data,2,2)
+            } else {
+                recievedMessage = e.data;
+            }
+            setBackMessage(recievedMessage);
+          });
     },[]);
 
     const sendMessage = () => {
@@ -23,6 +34,12 @@ function IframeParent() {
         if (!current) return
         current.contentWindow.postMessage(inputValue,origin)
         setInputValue('');
+    };
+
+    const sendClearAll = () => {
+        const { current } = childRef;
+        if (!current) return
+        current.contentWindow.postMessage('clear',origin)
     };
 
     const handleChange = (e) => {
@@ -47,22 +64,35 @@ function IframeParent() {
                     type="text"
                     className="with-border"
                 />
-                <Button
-                    variant="contained"
-                    color="primary"
-                    size="medium"
-                    onClick={sendMessage}
-                >
-                    Отправить сообщение
-                </Button>
+                <div>
+                    <MyButton
+                        variant="contained"
+                        color="primary"
+                        size="medium"
+                        onClick={sendMessage}
+                        text="Отправить сообщение"
+                    />
+                </div>
+                <div className="margin-left-10">
+                    <MyButton
+                        variant="contained"
+                        color="primary"
+                        size="medium"
+                        onClick={sendClearAll}
+                        text="Очистить"
+                    />
+                </div>
+
             </div>
+            <h3>{backMessage !== '' ? backMessage + ' лет' : ''}</h3>
             <iframe
-                src="/child-iframe"
+                src="/iframe-child/"
                 ref={childRef}
                 height="300"
                 width="700"
                 className="my-iframe"
-            />
+            >
+            </iframe>
         </div>
     );
 };
